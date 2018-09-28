@@ -66,6 +66,11 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - **rectWidth**: the width of the each square
 - **levelColors**: the color of the squares varies based on the number of commits contributed on a day. `minCommits` refers to the minimial number of commits required to mark the square with color specified by the corresponding `color ` attribute.
 
+## Design Patterns
+This project is engineered based on Behavior Delegation pattern mentioned in [You Don't Know Js](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md)
+
+![](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/cover.jpg)
+
 ## Authors
 
 - **Harry Liu** - *Initial work* - [byliuyang](https://github.com/byliuyang)
