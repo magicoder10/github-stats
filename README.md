@@ -6,7 +6,7 @@
 
 ## Getting Started
 ### Installation
-- Download [github-stats.js]() and save it to your `assets` folder.
+- Download [github-stats.js](master/src/github-stats.js) and save it to your `assets` folder.
 - Include `github-stats.js` in your html `head` tag:
 
 ```html
