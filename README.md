@@ -58,7 +58,7 @@ const githubStats = Object.create(GithubStats);
         });
 ```
 
-Please don't forget to replace `GITHUB_USERNAME` with **your** Github username and `CONTAINER` with the css selector where you want render the contributions inside.
+Please don't forget to replace `GITHUB_USERNAME` with **your** Github username and `CONTAINER` with the css selector where you want to render the contributions inside.
 
 ### Options
 - **rows**: the number of rows in the graph
