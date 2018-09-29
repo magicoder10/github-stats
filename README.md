@@ -14,7 +14,7 @@
 - Include `github-stats.js` in your html `head` tag:
 
 ```html
-<script type="text/javascript" src="https://cdn.rawgit.com/byliuyang/github-stats/master/src/github-stats.js"></script>
+<script type="text/javascript" src="https://rawgit.com/byliuyang/github-stats/master/src/github-stats.js"></script>
 ```
 
 ### Usage
