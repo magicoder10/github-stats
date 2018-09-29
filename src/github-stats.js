@@ -303,7 +303,6 @@ async function GithubStats(username) {
 
     let repos = getJSONCache('repos') ||
         await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
-    console.log(repos);
     saveJSONCache('repos', repos);
 
     let repoLanguages = getJSONCache('repoLanguages') ||
@@ -313,11 +312,9 @@ async function GithubStats(username) {
                 getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages`)));
 
     repoLanguages = repoLanguages.filter(repoLanguage => repoLanguage);
-    console.log(repoLanguages);
     saveJSONCache('repoLanguages', repoLanguages);
 
     let languageCounts = countBytesWrittenInLanguage(repoLanguages);
-    console.log(languageCounts);
 
     let maxBytes = 0;
     for (let language in languageCounts) {
@@ -328,7 +325,6 @@ async function GithubStats(username) {
 
     let sortedLanguages = Object.keys(languageCounts).sort((languageA, languageB) => languageCounts[languageB] - languageCounts[languageA]);
     let percentages = sortedLanguages.map(language => (languageCounts[language] * 100 / maxBytes));
-    console.log(sortedLanguages, percentages);
 
     return {
         commitsContribSVG: (config = {}) => {
