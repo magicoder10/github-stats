@@ -302,7 +302,7 @@ async function GithubStats(username) {
     });
 
     let repos = getJSONCache('repos') ||
-        await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100&client_id=54401463cf93b6c97277&client_secret=0860009c067b85b5db6cb9921979da294dfd71ac`);
+        await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
     console.log(repos);
     saveJSONCache('repos', repos);
 
@@ -310,7 +310,7 @@ async function GithubStats(username) {
         await Promise.all(repos
             .filter(repo => !repo['private'])
             .map(repo =>
-                getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages?client_id=54401463cf93b6c97277&client_secret=0860009c067b85b5db6cb9921979da294dfd71ac`)));
+                getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages`)));
 
     repoLanguages = repoLanguages.filter(repoLanguage => repoLanguage);
     console.log(repoLanguages);
