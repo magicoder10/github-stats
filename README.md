@@ -2,15 +2,19 @@
 > Embed Github profile every where you want
 
 ## Preview
-![](screenshot.png)
+
+### Commit Contributions
+![](commits.png)
+
+### Language Contributions
+![](languages.png)
 
 ## Getting Started
 ### Installation
-- Download [github-stats.js]() and save it in your `assets` folder.
 - Include `github-stats.js` in your html `head` tag:
 
 ```html
-<script type="text/javascript" src="assets/scripts/github-stats.js"></script>
+<script type="text/javascript" src="https://raw.githubusercontent.com/byliuyang/github-stats/master/src/github-stats.js"></script>
 ```
 
 ### Usage
@@ -18,53 +22,87 @@
 To use Github Stats, add the following JavaScript to your website:
 
 ```javascript
-const GITHUB_USERNAME = 'byliuyang';
-const CONTAINER = '#github-contributions';
+(async () => {
+        const GITHUB_USERNAME = 'byliuyang';
+        const COMMITS_CONTAINER = '#github-commits';
+        const LANGUAGES_CONTAINER = '#github-languages';
 
-const githubStatsConfig = {
-    rows: 7,
-    space: 4,
-    rectWidth: 16,
-    levelColors: [
-        {
-            minCommits: 0,
-            color: '#ebedf0'
-        },
-        {
-            minCommits: 1,
-            color: '#c6e48b'
-        },
-        {
-            minCommits: 9,
-            color: '#7bc96f'
-        },
-        {
-            minCommits: 17,
-            color: '#239a3b'
-        },
-        {
-            minCommits: 26,
-            color: '#196127'
-        }
-    ]
-};
+        const githubStats = await GithubStats(GITHUB_USERNAME);
 
-const githubStats = Object.create(GithubStats);
-    githubStats.init(GITHUB_USERNAME)
-        .then(() => {
-            let svg = githubStats.contributionsSvg(githubStatsConfig);
-            let githubCalender = document.querySelector(CONTAINER);
-            githubCalender.appendChild(svg);
+        /* Render SVG for commit contributions */
+        let commitsContribSVG = githubStats.commitsContribSVG({
+            rows: 7,
+            space: 4,
+            rectWidth: 16,
+            levelColors: [
+                {
+                    minCommits: 0,
+                    color: '#ebedf0'
+                },
+                {
+                    minCommits: 1,
+                    color: '#c6e48b'
+                },
+                {
+                    minCommits: 9,
+                    color: '#7bc96f'
+                },
+                {
+                    minCommits: 17,
+                    color: '#239a3b'
+                },
+                {
+                    minCommits: 26,
+                    color: '#196127'
+                }
+            ]
         });
+
+        let githubCommits = document.querySelector(COMMITS_CONTAINER);
+        githubCommits.appendChild(commitsContribSVG);
+
+        /* Render SVG for language contributions */
+        let languageContribSVG = githubStats.languagesContribSVG({
+            barHeight: 20,
+            lineSpacing: 4,
+            languageNameWidth: 100,
+            fontSize: 14
+        });
+
+        let githubLanguageDistribution = document.querySelector(LANGUAGES_CONTAINER);
+        githubLanguageDistribution.appendChild(languageContribSVG);
+    })();
 ```
 
-Please don't forget to replace `GITHUB_USERNAME` with **your** Github username and `CONTAINER` with the css selector where you want render the contributions inside.
+Please don't forget to replace `GITHUB_USERNAME` with **your** Github username and `*_CONTAINER` with the css selector where you want render the contributions inside.
 
 ### Options
+#### Commit Contributions SVG
 - **rows**: the number of rows in the graph
 - **space**: the space between each square with unit in `px`.
 - **rectWidth**: the width of the each square
-- **levelColors**: the color of the squares varies based on the number of commits contributed on a day. `minCommits` refers to the minimial number of commits required to mark the square with color specified by the corresponding `color ` attribute.
+- **levelColors**: the color of the squares varies based on the number of commits contributed on a day. `minCommits` refers to the minimal number of commits required to mark the square with color specified by the corresponding `color ` attribute.
+
+#### Language Contributions SVG
+
+- **barHeight**: the height of each rectangle
+- **lineSpacing**: the space between each bar
+- **languageNameWidth**: the width of language name
+- **fontSize**: the font size of language names
+
+## Changelog
+### [0.0.2] - 2018-09-29
+#### Added
+- Added [example.html](examples/example.html)
+- Added languages contributions svg generator
+- Support caching Github API responses in local storage to mitigate rate limit and to reduce loading time
+
+#### Updated
+- Simplified initialization
+
+### 0.0.1 - 2018-09-28
+#### Added
+- Add commit contributions generator
 
 ## Authors
 
