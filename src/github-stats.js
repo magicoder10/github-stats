@@ -303,28 +303,37 @@ async function GithubStats(username) {
 
     let repos = getJSONCache('repos') ||
         await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
-    saveJSONCache('repos', repos);
 
-    let repoLanguages = getJSONCache('repoLanguages') ||
-        await Promise.all(repos
-            .filter(repo => !repo['private'])
-            .map(repo =>
-                getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages`)));
+    let percentages;
+    let repoLanguages;
+    let languageCounts;
+    let sortedLanguages;
 
-    repoLanguages = repoLanguages.filter(repoLanguage => repoLanguage);
-    saveJSONCache('repoLanguages', repoLanguages);
+    if(repos) {
+        saveJSONCache('repos', repos);
+        repoLanguages = getJSONCache('repoLanguages') ||
+            await Promise.all(repos
+                .filter(repo => !repo['private'])
+                .map(repo =>
+                    getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages`)));
 
-    let languageCounts = countBytesWrittenInLanguage(repoLanguages);
+        if(repoLanguages) {
+            repoLanguages = repoLanguages.filter(repoLanguage => repoLanguage);
+            saveJSONCache('repoLanguages', repoLanguages);
 
-    let maxBytes = 0;
-    for (let language in languageCounts) {
-        if (languageCounts.hasOwnProperty(language) && languageCounts[language] > maxBytes) {
-            maxBytes = languageCounts[language];
+            languageCounts = countBytesWrittenInLanguage(repoLanguages);
+
+            let maxBytes = 0;
+            for (let language in languageCounts) {
+                if (languageCounts.hasOwnProperty(language) && languageCounts[language] > maxBytes) {
+                    maxBytes = languageCounts[language];
+                }
+            }
+
+            sortedLanguages = Object.keys(languageCounts).sort((languageA, languageB) => languageCounts[languageB] - languageCounts[languageA]);
+            percentages = sortedLanguages.map(language => (languageCounts[language] * 100 / maxBytes));
         }
     }
-
-    let sortedLanguages = Object.keys(languageCounts).sort((languageA, languageB) => languageCounts[languageB] - languageCounts[languageA]);
-    let percentages = sortedLanguages.map(language => (languageCounts[language] * 100 / maxBytes));
 
     return {
         commitsContribSVG: (config = {}) => {
@@ -396,34 +405,36 @@ async function GithubStats(username) {
             const languageNameWidth = config.languageNameWidth || 100;
             const fontSize = config.fontSize || 14;
 
-            const svgHeight = (barHeight + lineSpacing) * sortedLanguages.length - lineSpacing;
-
             let svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svgEl.setAttribute('width', '100%');
-            svgEl.setAttribute('height', `${svgHeight}`);
 
-            for (let i = 0; i < sortedLanguages.length; i++) {
-                let groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                groupEl.setAttribute('transform', `translate(${languageNameWidth},${i * (barHeight + lineSpacing)})`);
+            if(sortedLanguages) {
+                const svgHeight = (barHeight + lineSpacing) * sortedLanguages.length - lineSpacing;
+                svgEl.setAttribute('width', '100%');
+                svgEl.setAttribute('height', `${svgHeight}`);
 
-                let language = sortedLanguages[i];
+                for (let i = 0; i < sortedLanguages.length; i++) {
+                    let groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    groupEl.setAttribute('transform', `translate(${languageNameWidth},${i * (barHeight + lineSpacing)})`);
 
-                let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('width', `${percentages[i]}%`);
-                rect.setAttribute('height', `${barHeight}`);
-                rect.setAttribute('fill', LANGUAGE_TO_COLOR[language] || 'black');
-                groupEl.appendChild(rect);
+                    let language = sortedLanguages[i];
 
-                let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('font-size', fontSize);
-                text.style.fontWeight = 'bolder';
-                text.setAttribute('text-anchor', 'end');
-                text.setAttribute('dx', '-10');
-                text.setAttribute('y', `${barHeight / 2 + 4}`);
-                text.textContent = `${language}`;
-                groupEl.appendChild(text);
+                    let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('width', `${percentages[i]}%`);
+                    rect.setAttribute('height', `${barHeight}`);
+                    rect.setAttribute('fill', LANGUAGE_TO_COLOR[language] || 'black');
+                    groupEl.appendChild(rect);
 
-                svgEl.appendChild(groupEl);
+                    let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('font-size', fontSize);
+                    text.style.fontWeight = 'bolder';
+                    text.setAttribute('text-anchor', 'end');
+                    text.setAttribute('dx', '-10');
+                    text.setAttribute('y', `${barHeight / 2 + 4}`);
+                    text.textContent = `${language}`;
+                    groupEl.appendChild(text);
+
+                    svgEl.appendChild(groupEl);
+                }
             }
 
             return svgEl;
