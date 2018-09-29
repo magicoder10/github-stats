@@ -108,9 +108,9 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - Add commit contributions generator
 
 ## Design Patterns
-This project is engineered based on Behavior Delegation pattern mentioned in [You Don't Know Js](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md)
+This project is engineered based on closure mentioned in [You Don't Know Js](https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/README.md)
 
-![](https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/cover.jpg)
+![](https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/cover.jpg)
 
 ## Authors
 
