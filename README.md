@@ -23,55 +23,54 @@ To use Github Stats, add the following JavaScript to your website:
 
 ```javascript
 (async () => {
-        const GITHUB_USERNAME = 'byliuyang';
-        const COMMITS_CONTAINER = '#github-commits';
-        const LANGUAGES_CONTAINER = '#github-languages';
+    const GITHUB_USERNAME = 'byliuyang';
+    const COMMITS_CONTAINER = '#github-contributions';
+    const LANGUAGES_CONTAINER = '#github-language-distribution';
 
-        const githubStats = await GithubStats(GITHUB_USERNAME);
+    const githubStats = await GithubStats(GITHUB_USERNAME);
 
-        /* Render SVG for commit contributions */
-        let commitsContribSVG = githubStats.commitsContribSVG({
-            rows: 7,
-            space: 4,
-            rectWidth: 16,
-            levelColors: [
-                {
-                    minCommits: 0,
-                    color: '#ebedf0'
-                },
-                {
-                    minCommits: 1,
-                    color: '#c6e48b'
-                },
-                {
-                    minCommits: 9,
-                    color: '#7bc96f'
-                },
-                {
-                    minCommits: 17,
-                    color: '#239a3b'
-                },
-                {
-                    minCommits: 26,
-                    color: '#196127'
-                }
-            ]
-        });
+    let githubCommits = document.querySelector(COMMITS_CONTAINER);
+    /* Render SVG for commit contributions */
+    let commitsContribSVG = githubStats.commitsContribSVG({
+        rows: 7,
+        space: 4,
+        rectWidth: 16,
+        levelColors: [
+            {
+                minCommits: 0,
+                color: '#ebedf0'
+            },
+            {
+                minCommits: 1,
+                color: '#c6e48b'
+            },
+            {
+                minCommits: 9,
+                color: '#7bc96f'
+            },
+            {
+                minCommits: 17,
+                color: '#239a3b'
+            },
+            {
+                minCommits: 26,
+                color: '#196127'
+            }
+        ]
+    });
+    githubCommits.appendChild(commitsContribSVG);
 
-        let githubCommits = document.querySelector(COMMITS_CONTAINER);
-        githubCommits.appendChild(commitsContribSVG);
-
-        /* Render SVG for language contributions */
-        let languageContribSVG = githubStats.languagesContribSVG({
-            barHeight: 20,
-            lineSpacing: 4,
-            languageNameWidth: 100,
-            fontSize: 14
-        });
-
-        let githubLanguageDistribution = document.querySelector(LANGUAGES_CONTAINER);
-        githubLanguageDistribution.appendChild(languageContribSVG);
-    })();
+    let githubLanguageDistribution = document.querySelector(LANGUAGES_CONTAINER);
+    /* Render SVG for language contributions */
+    let languageContribSVG = githubStats.languagesContribSVG({
+        barHeight: 20,
+        barWidth: githubLanguageDistribution.offsetWidth,
+        lineSpacing: 4,
+        languageNameWidth: 100,
+        fontSize: 14
+    });
+    githubLanguageDistribution.appendChild(languageContribSVG);
+})();
 ```
 
 Please don't forget to replace `GITHUB_USERNAME` with **your** Github username and `*_CONTAINER` with the css selector where you want render the contributions inside.
@@ -91,6 +90,10 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - **fontSize**: the font size of language names
 
 ## Changelog
+### [0.0.3] - 2018-09-29
+#### Changed
+- Fix language contributions bar chart incorrect width bug
+
 ### [0.0.2] - 2018-09-29
 #### Added
 - Added [example.html](examples/example.html)

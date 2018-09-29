@@ -331,7 +331,7 @@ async function GithubStats(username) {
             }
 
             sortedLanguages = Object.keys(languageCounts).sort((languageA, languageB) => languageCounts[languageB] - languageCounts[languageA]);
-            percentages = sortedLanguages.map(language => (languageCounts[language] * 100 / maxBytes));
+            percentages = sortedLanguages.map(language => (languageCounts[language] / maxBytes));
         }
     }
 
@@ -401,6 +401,8 @@ async function GithubStats(username) {
         },
         languagesContribSVG: (config = {}) => {
             const barHeight = config.barHeight || 20;
+            const barWidth =  config.barWidth || 500;
+
             const lineSpacing = config.lineSpacing || 4;
             const languageNameWidth = config.languageNameWidth || 100;
             const fontSize = config.fontSize || 14;
@@ -409,32 +411,40 @@ async function GithubStats(username) {
 
             if(sortedLanguages) {
                 const svgHeight = (barHeight + lineSpacing) * sortedLanguages.length - lineSpacing;
-                svgEl.setAttribute('width', '100%');
+                svgEl.setAttribute('width', `${barWidth + 100}`);
                 svgEl.setAttribute('height', `${svgHeight}`);
+                svgEl.setAttribute('viewport', `0 0 ${barWidth + 100} ${svgHeight}`);
+
+                let languages = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                languages.setAttribute('transform', `translate(${languageNameWidth},0)`);
+
+                let bars = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                bars.setAttribute('transform', `translate(${languageNameWidth},0)`);
+
 
                 for (let i = 0; i < sortedLanguages.length; i++) {
-                    let groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                    groupEl.setAttribute('transform', `translate(${languageNameWidth},${i * (barHeight + lineSpacing)})`);
-
                     let language = sortedLanguages[i];
 
                     let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    rect.setAttribute('width', `${percentages[i]}%`);
+                    let top = i * (barHeight + lineSpacing);
+
+                    rect.setAttribute('y', `${top}`);
+                    rect.setAttribute('width', `${percentages[i] * barWidth}`);
                     rect.setAttribute('height', `${barHeight}`);
                     rect.setAttribute('fill', LANGUAGE_TO_COLOR[language] || 'black');
-                    groupEl.appendChild(rect);
+                    bars.appendChild(rect);
 
                     let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     text.setAttribute('font-size', fontSize);
                     text.style.fontWeight = 'bolder';
                     text.setAttribute('text-anchor', 'end');
                     text.setAttribute('dx', '-10');
-                    text.setAttribute('y', `${barHeight / 2 + 4}`);
+                    text.setAttribute('y', `${barHeight / 2 + 4 + top}`);
                     text.textContent = `${language}`;
-                    groupEl.appendChild(text);
-
-                    svgEl.appendChild(groupEl);
+                    languages.appendChild(text);
                 }
+                svgEl.appendChild(languages);
+                svgEl.appendChild(bars);
             }
 
             return svgEl;
