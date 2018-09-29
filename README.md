@@ -100,7 +100,7 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 #### Updated
 - Simplified initialization
 
-### 0.0.1 - 2018-09-28
+### [0.0.1] - 2018-09-28
 #### Added
 - Add commit contributions generator
 
