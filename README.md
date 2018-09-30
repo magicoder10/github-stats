@@ -11,11 +11,18 @@
 
 ## Getting Started
 ### Installation
-- Include `github-stats.js` in your html `head` tag:
+Include `github-stats.js` in your html `head` tag:
 
 ```html
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/byliuyang/github-stats@0.0.3/src/github-stats.js"></script>
 ```
+
+For older releases, use the follow snippet instead:
+```html
+<script type="text/javascript" src="
+https://cdn.jsdelivr.net/gh/byliuyang/github-stats@VERSION/src/github-stats.js"></script>
+```
+Please remember to replace `VERSION` with the version number you are using.
 
 ### Usage
 
@@ -89,7 +96,8 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - **fontSize**: the font size of language names
 
 ## Release
-The latest release is `v0.0.3`. You can find all the releases [here](https://github.com/byliuyang/github-stats/releases)
+The latest release is [v0.0.3](https://github.com/byliuyang/github-stats/releases/tag/v0.0.3).
+You can find all the releases [here](https://github.com/byliuyang/github-stats/releases)
 
 ## Design Patterns
 This project is engineered based on closure mentioned in [You Don't Know Js](https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/README.md)
