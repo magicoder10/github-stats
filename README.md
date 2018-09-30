@@ -14,7 +14,7 @@
 Include `github-stats.js` in your html `head` tag:
 
 ```html
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/byliuyang/github-stats@0.0.3/src/github-stats.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/byliuyang/github-stats@0.0.4/src/github-stats.js"></script>
 ```
 
 For older releases, use the follow snippet instead:
@@ -96,7 +96,7 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - **fontSize**: the font size of language names
 
 ## Release
-The latest release is [v0.0.3](https://github.com/byliuyang/github-stats/releases/tag/v0.0.3).
+The latest release is [v0.0.4](https://github.com/byliuyang/github-stats/releases/tag/v0.0.4).
 You can find all the releases [here](https://github.com/byliuyang/github-stats/releases)
 
 ## Design Patterns
