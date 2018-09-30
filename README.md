@@ -11,11 +11,18 @@
 
 ## Getting Started
 ### Installation
-- Include `github-stats.js` in your html `head` tag:
+Include `github-stats.js` in your html `head` tag:
 
 ```html
-<script type="text/javascript" src="https://rawgit.com/byliuyang/github-stats/master/src/github-stats.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/byliuyang/github-stats@0.0.3/src/github-stats.js"></script>
 ```
+
+For older releases, use the follow snippet instead:
+```html
+<script type="text/javascript" src="
+https://cdn.jsdelivr.net/gh/byliuyang/github-stats@VERSION/src/github-stats.js"></script>
+```
+Please remember to replace `VERSION` with the version number you are using.
 
 ### Usage
 
@@ -83,29 +90,14 @@ Please don't forget to replace `GITHUB_USERNAME` with **your** Github username a
 - **levelColors**: the color of the squares varies based on the number of commits contributed on a day. `minCommits` refers to the minimal number of commits required to mark the square with color specified by the corresponding `color ` attribute.
 
 #### Language Contributions SVG
-
 - **barHeight**: the height of each rectangle
 - **lineSpacing**: the space between each bar
 - **languageNameWidth**: the width of language name
 - **fontSize**: the font size of language names
 
-## Changelog
-### [0.0.3] - 2018-09-29
-#### Changed
-- Fix language contributions bar chart incorrect width bug
-
-### [0.0.2] - 2018-09-29
-#### Added
-- Added [example.html](examples/example.html)
-- Added languages contributions svg generator
-- Support caching Github API responses in local storage to mitigate rate limit and to reduce loading time
-
-#### Updated
-- Simplified initialization
-
-### [0.0.1] - 2018-09-28
-#### Added
-- Add commit contributions generator
+## Release
+The latest release is [v0.0.3](https://github.com/byliuyang/github-stats/releases/tag/v0.0.3).
+You can find all the releases [here](https://github.com/byliuyang/github-stats/releases)
 
 ## Design Patterns
 This project is engineered based on closure mentioned in [You Don't Know Js](https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/README.md)
@@ -113,7 +105,6 @@ This project is engineered based on closure mentioned in [You Don't Know Js](htt
 ![](https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/cover.jpg)
 
 ## Authors
-
 - **Harry Liu** - *Initial work* - [byliuyang](https://github.com/byliuyang)
 
 ## License
