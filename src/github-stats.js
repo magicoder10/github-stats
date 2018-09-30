@@ -278,7 +278,13 @@ async function GithubStats(username) {
         return languageCounts;
     }
 
-    let homepageHTML = getCache('homepageHTML') ||
+    function isUsernameChanged(username) {
+        return getCache('username') !== username;
+    }
+
+    let cachedHomepageHTML = getCache('homepageHTML');
+    let homepageHTML = !isUsernameChanged(username) && cachedHomepageHTML ?
+        cachedHomepageHTML :
         await getText(`https://urlreq.appspot.com/req?method=GET&url=https://github.com/${username}`);
     saveCache('homepageHTML', homepageHTML);
 
@@ -301,7 +307,9 @@ async function GithubStats(username) {
         })
     });
 
-    let repos = getJSONCache('repos') ||
+    let cachedRepos = getJSONCache('repos');
+    let repos = !isUsernameChanged(username) && cachedRepos ?
+        cachedRepos :
         await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
 
     let percentages;
@@ -311,7 +319,10 @@ async function GithubStats(username) {
 
     if(repos) {
         saveJSONCache('repos', repos);
-        repoLanguages = getJSONCache('repoLanguages') ||
+
+        let cachedRepoLanguages = getJSONCache('repoLanguages');
+        repoLanguages = !isUsernameChanged(username) && cachedRepoLanguages ?
+            cachedRepoLanguages :
             await Promise.all(repos
                 .filter(repo => !repo['private'])
                 .map(repo =>
@@ -334,6 +345,8 @@ async function GithubStats(username) {
             percentages = sortedLanguages.map(language => (languageCounts[language] / maxBytes));
         }
     }
+
+    saveCache('username', username);
 
     return {
         commitsContribSVG: (config = {}) => {
