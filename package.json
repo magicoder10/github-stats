@@ -1,0 +1,30 @@
+{
+  "name": "github-stats",
+  "version": "1.0.0",
+  "description": "> Embed Github profile every where you want",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "tslint-eslint-rules": "^5.4.0"
+  },
+  "devDependencies": {
+    "tslint": "^6.0.0",
+    "tslint-microsoft-contrib": "^6.2.0",
+    "typescript": "^3.7.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karanjitsingh/github-stats.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/karanjitsingh/github-stats/issues"
+  },
+  "homepage": "https://github.com/karanjitsingh/github-stats#readme"
+}
