@@ -60,18 +60,10 @@
     "comment-type": false,
     "completed-docs": false,
     "curly": true,
-    "cyclomatic-complexity": [
-    true,
-    13
-    ],
     "deprecation": true,
     "encoding": true,
     "eofline": true,
     "file-header": false,
-    "file-name-casing": [
-    true,
-    "kebab-case"
-    ],
     "forin": true,
     "function-constructor": true,
     "import-blacklist": [
@@ -171,7 +163,6 @@
     "no-mergeable-namespace": true,
     "no-misused-new": true,
     "no-namespace": false,
-    "no-non-null-assertion": true,
     "no-null-keyword": false,
     "no-null-undefined-union": false,
     "no-object-literal-type-assertion": true,
