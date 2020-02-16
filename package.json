@@ -1,7 +1,7 @@
 {
   "name": "github-stats",
   "version": "1.0.0",
-  "description": "> Embed Github profile every where you want",
+  "description": "Embed Github profile every where you want",
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -15,16 +15,16 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "build":  "tsc"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karanjitsingh/github-stats.git"
+    "url": "https://github.com/byliuyang/github-stats.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/karanjitsingh/github-stats/issues"
+    "url": "https://github.com/byliuyang/github-stats/issues"
   },
-  "homepage": "https://github.com/karanjitsingh/github-stats#readme"
+  "homepage": "https://github.com/byliuyang/github-stats#readme"
 }

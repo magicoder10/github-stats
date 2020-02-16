@@ -264,4 +264,4 @@ type DefinedLanguage = '1C Enterprise' |
 'XQuery' |
 'XSLT' |
 'Yacc' |
-'Zephir';
+'Zephir'
