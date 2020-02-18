@@ -1,7 +1,7 @@
 {
   "name": "github-stats",
   "version": "1.0.0",
-  "description": "Embed Github profile every where you want",
+  "description": "Embed Github profile everywhere you want",
   "main": "index.js",
   "directories": {
     "example": "examples"
