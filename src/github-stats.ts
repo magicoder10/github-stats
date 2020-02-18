@@ -1,6 +1,9 @@
-async function GithubStats(username) {
+/// <reference path="./model.ts" />
+
+async function GithubStats(username: string): Promise<GithubStats> {
     const GITHUB_API_URL = 'https://api.github.com';
-    const LANGUAGE_TO_COLOR = {
+
+    const LanguageColorMap: {[key in DefinedLanguage]: string } = {
         '1C Enterprise': '#814CCC',
         ABAP: '#E8274B',
         ActionScript: '#882B0F',
@@ -228,177 +231,175 @@ async function GithubStats(username) {
         XQuery: '#5232e7',
         XSLT: '#EB8CEB',
         Yacc: '#4B6C4B',
-        Zephir: '#118f9e'
+        Zephir: '#118f9e',
     };
 
     /* We cache http response to prevent reaching rate limit & to load the page faster */
-    function getCache(key) {
+    function getCache(key: string): string | null {
         return localStorage.getItem(`github-stats-${key}`);
     }
 
-    function saveCache(key, value) {
+    function saveCache(key: string , value: string): void {
         localStorage.setItem(`github-stats-${key}`, value);
     }
 
-    function getJSONCache(key) {
-        let value = getCache(key);
+    // TODO: typesafe key-value pairs
+    function getJSONCache<T extends JsonCacheType>(key: T): JsonCacheOptionsMap[T] {
+        const value = getCache(key);
         return value ? JSON.parse(value) : null;
     }
 
-    function saveJSONCache(key, value) {
+    // TODO: typesage key-value pairs
+    function saveJSONCache<T extends JsonCacheType>(key: T, value: JsonCacheOptionsMap[T]): void {
         saveCache(key, JSON.stringify(value));
     }
 
-    function getJSON(url) {
-        return fetch(url)
-            .then(response => {
-                if (response.status !== 200) {
-                    return;
-                }
-                return response.json();
-            });
-    }
+    function getJSON<T>(url: string): Promise<T | null> {
+            return fetch(url)
+                .then((response: Response) => {
+                    if (response.status !== 200) {
+                        return null;
+                    }
+                    return response.json();
+                });
+        }
 
-    function getText(url) {
+    function getText(url: string): Promise<string> {
         return fetch(url)
-            .then(response => {
+            .then((response: Response) => {
                 if (response.status !== 200) {
-                    return;
+                    return '';
                 }
                 return response.text();
             });
     }
 
-    function countBytesWrittenInLanguage() {
-        let languageCounts = {};
-        repoLanguages.forEach(repoLanguage =>
+    function countBytesWrittenInLanguage(languages: DefinedLanguage[]): LanguageCountMap {
+        const languageCountMap: LanguageCountMap = {};
+        languages.forEach((repoLanguage: DefinedLanguage) =>
             Object.keys(repoLanguage)
-                .forEach(language =>
-                    languageCounts[language] = (languageCounts[language] || 0) + repoLanguage[language]));
-        return languageCounts;
+                .forEach((language: string) =>
+                    languageCountMap[language] = (languageCountMap[language] || 0) + repoLanguage[language]));
+        return languageCountMap;
     }
 
-    function isUsernameChanged(username) {
-        return getCache('username') !== username;
+    function isUsernameChanged(user: string): boolean {
+        return getCache('username') !== user;
     }
 
-    let cachedHomepageHTML = getCache('homepageHTML');
-    let homepageHTML = !isUsernameChanged(username) && cachedHomepageHTML ?
+    const cachedHomepageHTML = getCache('homepageHTML');
+    const homepageHTML = !isUsernameChanged(username) && cachedHomepageHTML ?
         cachedHomepageHTML :
         await getText(`https://urlreq.appspot.com/req?method=GET&url=https://github.com/${username}`);
     saveCache('homepageHTML', homepageHTML);
 
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(homepageHTML, 'text/html');
-    let calendarSvg = doc.querySelector('.js-calendar-graph-svg');
-    let days = calendarSvg.querySelectorAll('g > g > rect');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(homepageHTML, 'text/html');
+    const calendarSvg: Element | null = doc.querySelector('.js-calendar-graph-svg')!;
+    const days: NodeListOf<SVGElementTagNameMap['rect']> = calendarSvg.querySelectorAll(('g > g > rect'));
 
-    Array.from(days).map(day => {
+    const commitsByDay = Array.from(days).map((day: SVGElementTagNameMap['rect']) => {
         return ({
-            numCommits: day.dataset.count,
-            date: day.dataset.date
-        })
+            numCommits: parseInt(day.dataset.count || '0'),
+            date: day.dataset.date,
+        });
     });
 
-    let commitsByDay = Array.from(days).map(day => {
-        return ({
-            numCommits: day.dataset.count,
-            date: day.dataset.date
-        })
-    });
-
-    let cachedRepos = getJSONCache('repos');
-    let repos = !isUsernameChanged(username) && cachedRepos ?
+    const cachedRepos = getJSONCache('repos');
+    const repos: Repo[] = !isUsernameChanged(username) && cachedRepos ?
         cachedRepos :
-        await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`);
+        (await getJSON(`${GITHUB_API_URL}/users/${username}/repos?per_page=100`) || []);
 
     let percentages;
-    let repoLanguages;
-    let languageCounts;
-    let sortedLanguages;
+    let repoLanguages: DefinedLanguage[];
+    let languageCounts: LanguageCountMap;
+    let sortedLanguages: DefinedLanguage[];
 
-    if(repos) {
+    if (repos) {
         saveJSONCache('repos', repos);
 
-        let cachedRepoLanguages = getJSONCache('repoLanguages');
+        const cachedRepoLanguages = getJSONCache('repoLanguages');
         repoLanguages = !isUsernameChanged(username) && cachedRepoLanguages ?
             cachedRepoLanguages :
             await Promise.all(repos
-                .filter(repo => !repo['private'])
-                .map(repo =>
-                    getJSON(`${GITHUB_API_URL}/repos/${repo['full_name']}/languages`)));
+                .filter((repo: Repo) => !repo.private)
+                .map((repo: Repo) =>
+                    getJSON(`${GITHUB_API_URL}/repos/${repo.full_name}/languages`))) as DefinedLanguage[];
 
-        if(repoLanguages) {
-            repoLanguages = repoLanguages.filter(repoLanguage => repoLanguage);
+        if (repoLanguages) {
+            repoLanguages = repoLanguages.filter((repoLanguage: DefinedLanguage) => repoLanguage);
             saveJSONCache('repoLanguages', repoLanguages);
 
             languageCounts = countBytesWrittenInLanguage(repoLanguages);
 
             let maxBytes = 0;
-            for (let language in languageCounts) {
+            for (const language in languageCounts) {
                 if (languageCounts.hasOwnProperty(language) && languageCounts[language] > maxBytes) {
                     maxBytes = languageCounts[language];
                 }
             }
 
-            sortedLanguages = Object.keys(languageCounts).sort((languageA, languageB) => languageCounts[languageB] - languageCounts[languageA]);
-            percentages = sortedLanguages.map(language => (languageCounts[language] / maxBytes));
+            sortedLanguages = Object.keys(languageCounts).sort((languageA: DefinedLanguage, languageB: DefinedLanguage) => languageCounts[languageB]! - languageCounts[languageA]!) as DefinedLanguage[];
+            percentages = sortedLanguages.map((language: DefinedLanguage) => (languageCounts[language]! / maxBytes));
         }
     }
 
     saveCache('username', username);
 
     return {
-        commitsContribSVG: (config = {}) => {
-            const rows = config.rows || 7;
-            const space = config.space || 2;
-            const rectWidth = config.rectWidth || 12;
+        commitsContribSVG: (configOptions: Partial<CommitsSVG> = {}) => {
+            const config: CommitsSVG = {
+                rows: configOptions.rows || 7,
+                space: configOptions.space || 2,
+                rectWidth: configOptions.rectWidth || 12,
+                levelColors: configOptions.levelColors || [
+                    {
+                        minCommits: 0,
+                        color: '#ebedf0',
+                    },
+                    {
+                        minCommits: 1,
+                        color: '#c6e48b',
+                    },
+                    {
+                        minCommits: 9,
+                        color: '#7bc96f',
+                    },
+                    {
+                        minCommits: 17,
+                        color: '#239a3b',
+                    },
+                    {
+                        minCommits: 26,
+                        color: '#196127',
+                    },
+                ],
+            };
 
-            const levelColors = config.levelColors || [
-                {
-                    minCommits: 0,
-                    color: '#ebedf0'
-                },
-                {
-                    minCommits: 1,
-                    color: '#c6e48b'
-                },
-                {
-                    minCommits: 9,
-                    color: '#7bc96f'
-                },
-                {
-                    minCommits: 17,
-                    color: '#239a3b'
-                },
-                {
-                    minCommits: 26,
-                    color: '#196127'
-                }
-            ];
+            const cols = Math.ceil(commitsByDay.length / config.rows);
 
-            const cols = Math.ceil(commitsByDay.length / rows);
+            const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgEl.setAttribute('width', `${cols * (config.rectWidth + config.space) - config.space}`);
+            svgEl.setAttribute('height', `${config.rows * (config.rectWidth + config.space) - config.space}`);
 
-            let svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svgEl.setAttribute('width', `${cols * (rectWidth + space) - space}`);
-            svgEl.setAttribute('height', `${rows * (rectWidth + space) - space}`);
-
-            let groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const groupEl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
             for (let i = 0; i < commitsByDay.length; i++) {
-                let col = Math.floor(i / rows);
-                let row = i % rows;
-                let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', `${col * (rectWidth + space)}`);
-                rect.setAttribute('y', `${row * (rectWidth + space)}`);
-                rect.setAttribute('width', `${rectWidth}`);
-                rect.setAttribute('height', `${rectWidth}`);
+                const col = Math.floor(i / config.rows);
+                const row = i % config.rows;
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', `${col * (config.rectWidth + config.space)}`);
+                rect.setAttribute('y', `${row * (config.rectWidth + config.space)}`);
+                rect.setAttribute('width', `${config.rectWidth}`);
+                rect.setAttribute('height', `${config.rectWidth}`);
 
-                let color = null;
+                let color = '';
                 let minCommits = -1;
-                let mumCommits = commitsByDay[i].numCommits;
+                
+                const mumCommits = commitsByDay[i].numCommits;
 
-                levelColors.forEach(levelColor => {
+                // TODO: levelcolor interface
+                config.levelColors.forEach((levelColor: LevelColor) => {
                     if (mumCommits >= levelColor.minCommits && levelColor.minCommits > minCommits) {
                         minCommits = levelColor.minCommits;
                         color = levelColor.color;
@@ -412,47 +413,49 @@ async function GithubStats(username) {
             svgEl.appendChild(groupEl);
             return svgEl;
         },
-        languagesContribSVG: (config = {}) => {
-            const barHeight = config.barHeight || 20;
-            const barWidth =  config.barWidth || 500;
 
-            const lineSpacing = config.lineSpacing || 4;
-            const languageNameWidth = config.languageNameWidth || 100;
-            const fontSize = config.fontSize || 14;
+        // TODO: config interface
+        languagesContribSVG: (configOptions: Partial<LanguageSVGConfig> = {}) => {
+            const config: LanguageSVGConfig = {
+                barHeight: configOptions.barHeight || 20,
+                barWidth: configOptions.barWidth || 500,
+                lineSpacing: configOptions.lineSpacing || 4,
+                languageNameWidth: configOptions.languageNameWidth || 100,
+                fontSize: configOptions.fontSize || 14,
+            };
 
-            let svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-            if(sortedLanguages) {
-                const svgHeight = (barHeight + lineSpacing) * sortedLanguages.length - lineSpacing;
-                svgEl.setAttribute('width', `${barWidth + 100}`);
+            if (sortedLanguages) {
+                const svgHeight = (config.barHeight + config.lineSpacing) * sortedLanguages.length - config.lineSpacing;
+                svgEl.setAttribute('width', `${config.barWidth + 100}`);
                 svgEl.setAttribute('height', `${svgHeight}`);
-                svgEl.setAttribute('viewport', `0 0 ${barWidth + 100} ${svgHeight}`);
+                svgEl.setAttribute('viewport', `0 0 ${config.barWidth + 100} ${svgHeight}`);
 
-                let languages = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                languages.setAttribute('transform', `translate(${languageNameWidth},0)`);
+                const languages = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                languages.setAttribute('transform', `translate(${config.languageNameWidth},0)`);
 
-                let bars = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                bars.setAttribute('transform', `translate(${languageNameWidth},0)`);
-
+                const bars = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                bars.setAttribute('transform', `translate(${config.languageNameWidth},0)`);
 
                 for (let i = 0; i < sortedLanguages.length; i++) {
-                    let language = sortedLanguages[i];
+                    const language = sortedLanguages[i];
 
-                    let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    let top = i * (barHeight + lineSpacing);
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    const top = i * (config.barHeight + config.lineSpacing);
 
                     rect.setAttribute('y', `${top}`);
-                    rect.setAttribute('width', `${percentages[i] * barWidth}`);
-                    rect.setAttribute('height', `${barHeight}`);
-                    rect.setAttribute('fill', LANGUAGE_TO_COLOR[language] || 'black');
+                    rect.setAttribute('width', `${percentages[i] * config.barWidth}`);
+                    rect.setAttribute('height', `${config.barHeight}`);
+                    rect.setAttribute('fill', LanguageColorMap[language] || 'black');
                     bars.appendChild(rect);
 
-                    let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('font-size', fontSize);
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('font-size', config.fontSize.toString());
                     text.style.fontWeight = 'bolder';
                     text.setAttribute('text-anchor', 'end');
                     text.setAttribute('dx', '-10');
-                    text.setAttribute('y', `${barHeight / 2 + 4 + top}`);
+                    text.setAttribute('y', `${config.barHeight / 2 + 4 + top}`);
                     text.textContent = `${language}`;
                     languages.appendChild(text);
                 }
@@ -461,6 +464,6 @@ async function GithubStats(username) {
             }
 
             return svgEl;
-        }
+        },
     };
 }
